@@ -1,3 +1,6 @@
+from constants import CellType
+
+
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -8,3 +11,14 @@ PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
+
+
+cell_colors = {
+    CellType.CLOSED: RED,
+    CellType.OPEN: GREEN,
+    CellType.BARRIER: BLACK,
+    CellType.START: ORANGE,
+    CellType.END: TURQUOISE,
+    CellType.PATH: PURPLE,
+    CellType.NULL: WHITE
+}

@@ -1,66 +1,15 @@
-import enum
-import random
 import sys
 
 import pygame
 
-import colors
-
-
-WIDTH = HEIGHT = 640
-SIZE = 16
-
-class CellType(enum.Enum):
-    CLOSED = 1
-    OPEN = 2
-    BARRIER = 3
-    START = 4
-    END = 5
-    PATH = 6
-    NULL = 7
-
-cell_colors = {
-    CellType.CLOSED: colors.RED,
-    CellType.OPEN: colors.GREEN,
-    CellType.BARRIER: colors.BLACK,
-    CellType.START: colors.ORANGE,
-    CellType.END: colors.TURQUOISE,
-    CellType.PATH: colors.PURPLE,
-    CellType.NULL: colors.WHITE
-}
-
-class Spot:
-    def __init__(self, col, row, total_rows):
-        self._row = row
-        self._col = col
-        self._x = col * SIZE
-        self._y = row * SIZE
-        self._total_rows = total_rows
-        self._celltype = CellType.NULL
-        self._color = cell_colors[self._celltype]
-        # self._color = cell_colors[random.choice(list(CellType))]
-        self._neighbors = []
-
-    @property
-    def celltype(self):
-        return self._celltype
-
-    @celltype.setter
-    def celltype(self, celltype):
-        self._celltype = celltype
-        self._color = cell_colors[self._celltype]
-    
-    def draw(self, surface):
-        pygame.draw.rect(
-            surface,
-            self._color,
-            (self._x, self._y, SIZE, SIZE)
-        )
+from colors import GREY, WHITE
+from constants import CellType, HEIGHT, WIDTH, SIZE
+from spot import Spot
 
 
 clock = pygame.time.Clock()
 pygame.init()
-pygame.display.set_caption("Path finding algorithm")
+pygame.display.set_caption("A* Pathfinding Algorithm")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 def prepare_cell_data():
@@ -87,10 +36,10 @@ def draw_gridlines(win):
     rows = HEIGHT // SIZE
 
     for r in range(rows):
-        pygame.draw.line(win, colors.GREY, (0, r * SIZE), (WIDTH, r * SIZE))
+        pygame.draw.line(win, GREY, (0, r * SIZE), (WIDTH, r * SIZE))
 
     for c in range(cols):
-        pygame.draw.line(win, colors.GREY, (c * SIZE, 0), (c * SIZE, HEIGHT))
+        pygame.draw.line(win, GREY, (c * SIZE, 0), (c * SIZE, HEIGHT))
 
 def get_clicked_cell(m_pos):
     row = m_pos[1] // SIZE
@@ -112,7 +61,7 @@ started = False
 draw_line = False
 
 while True:
-    screen.fill(colors.WHITE)
+    screen.fill(WHITE)
     draw_cells(screen, grid)
     draw_gridlines(screen)
 
