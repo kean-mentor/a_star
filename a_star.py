@@ -18,7 +18,7 @@ surface = pygame.display.set_mode((WIDTH, HEIGHT))
 def prepare_cell_data():
     rows = HEIGHT // SIZE
     cols = WIDTH // SIZE
- 
+
     grid = []
     for r in range(rows):
         grid.append([])
@@ -57,10 +57,6 @@ def get_clicked_cell(m_pos):
     return row, col
 
 
-def reset_grid():
-    print("Not implemented yet...")
-
-
 def reconstruct_path(came_from, current, draw_func):
     while current in came_from:
         current = came_from[current]
@@ -86,8 +82,8 @@ def calculate_shortest_path(draw_func, grid, start, end):
     while not open_set.empty():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-        
+                return None
+
         current = open_set.get()[2]
         open_set_hash.remove(current)
 
@@ -112,7 +108,7 @@ def calculate_shortest_path(draw_func, grid, start, end):
                     neighbor.celltype = CellType.OPEN
 
         draw_func()
-        
+
         if current != start:
             current.celltype = CellType.CLOSED
 
@@ -122,9 +118,9 @@ def calculate_shortest_path(draw_func, grid, start, end):
 grid = prepare_cell_data()
 start = None  # Start point
 end = None  # Destination point
-is_started = False  # Pathfinding algorithm started or not
 is_drawing = False  # Start and destination points are placed and left mouse button is pressed
 is_running = True
+is_editable = True
 
 
 while is_running:
@@ -134,48 +130,57 @@ while is_running:
         if event.type == pygame.QUIT:
             is_running = False
             continue
-        if is_started:
-            continue  # After the algorithm is started you can't modify the grid
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            row, col = get_clicked_cell(pygame.mouse.get_pos())
-
-            if pygame.mouse.get_pressed()[0]:  # Left mouse button
-                if grid[row][col].celltype not in (CellType.START, CellType.END):
-                    if not start:
-                        grid[row][col].celltype = CellType.START
-                        start = grid[row][col]
-                    elif not end:
-                        grid[row][col].celltype = CellType.END
-                        end = grid[row][col]
-                    else:
-                        grid[row][col].celltype = CellType.BARRIER
-                        is_drawing = True
-            elif pygame.mouse.get_pressed()[2]:  # Right mouse button
-                if grid[row][col] == start:
-                    start = None
-                elif grid[row][col] == end:
-                    end = None
-
-                grid[row][col].celltype = CellType.NULL
-        if event.type == pygame.MOUSEMOTION:
-            if is_drawing:
+        if is_editable:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 row, col = get_clicked_cell(pygame.mouse.get_pos())
-                
-                if grid[row][col].celltype not in (CellType.START, CellType.END):
-                    grid[row][col].celltype = CellType.BARRIER
-        if event.type == pygame.MOUSEBUTTONUP:
-            is_drawing = False
+
+                if pygame.mouse.get_pressed()[0]:  # Left mouse button
+                    if grid[row][col].celltype not in (CellType.START, CellType.END):
+                        if not start:
+                            grid[row][col].celltype = CellType.START
+                            start = grid[row][col]
+                        elif not end:
+                            grid[row][col].celltype = CellType.END
+                            end = grid[row][col]
+                        else:
+                            grid[row][col].celltype = CellType.BARRIER
+                            is_drawing = True
+                elif pygame.mouse.get_pressed()[2]:  # Right mouse button
+                    if grid[row][col] == start:
+                        start = None
+                    elif grid[row][col] == end:
+                        end = None
+
+                    grid[row][col].celltype = CellType.NULL
+
+            if event.type == pygame.MOUSEMOTION:
+                if is_drawing:
+                    row, col = get_clicked_cell(pygame.mouse.get_pos())
+
+                    if grid[row][col].celltype not in (CellType.START, CellType.END):
+                        grid[row][col].celltype = CellType.BARRIER
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                is_drawing = False
+
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and start and end:
-                is_started = True
+            if event.key == pygame.K_SPACE and start and end and is_editable:
+                is_editable = False
 
                 for row in grid:
                     for cell in row:
                         cell.find_neighbors(grid)
 
-                calculate_shortest_path(lambda: draw(surface, grid), grid, start, end)
+                r = calculate_shortest_path(lambda: draw(surface, grid), grid, start, end)
+                if r == None:
+                    is_running = False
+                    continue
+
             if event.key == pygame.K_r:
-                reset_grid()
+                grid = prepare_cell_data()
+                start = None
+                end = None
+                is_editable = True
 
     clock.tick(120)
 
