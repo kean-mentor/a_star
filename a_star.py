@@ -15,6 +15,9 @@ pygame.display.set_caption("A* Pathfinding Algorithm")
 surface = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
+# FYI: Most of the functions shouldn't have parameters because they rely
+# on global variables and don't modify them but I think this way is nicer.
+
 def prepare_cell_data():
     rows = HEIGHT // SIZE
     cols = WIDTH // SIZE
@@ -96,7 +99,7 @@ def calculate_shortest_path(draw_func, grid, start, end):
 
         for neighbor in current.neighbors:
             new_g_score = g_score[current] + 1  # All edges are weighted equally
-            # If this path to neighbor is better than any previous one. Record it!
+            # If this path to neighbor is better than any previous one record it!
             if new_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
                 g_score[neighbor] = new_g_score
@@ -118,9 +121,9 @@ def calculate_shortest_path(draw_func, grid, start, end):
 grid = prepare_cell_data()
 start = None  # Start point
 end = None  # Destination point
+is_editable = True
 is_drawing = False  # Start and destination points are placed and left mouse button is pressed
 is_running = True
-is_editable = True
 
 
 while is_running:
@@ -186,5 +189,3 @@ while is_running:
 
 pygame.quit()
 sys.exit()
-
-# TODO: 'win/surface' and 'grid' are global variables. Some functions get them as params others not. Choose one method.
